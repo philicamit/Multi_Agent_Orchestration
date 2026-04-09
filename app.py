@@ -12,6 +12,17 @@ from langgraph.checkpoint.mongodb import MongoDBSaver
 
 load_dotenv()
 
+# --- Helper: get config from env or Streamlit secrets ---
+def get_secret(key, default=None):
+    # Try environment variable first, then Streamlit secrets
+    val = os.getenv(key)
+    if val:
+        return val
+    try:
+        return st.secrets[key]
+    except (KeyError, FileNotFoundError):
+        return default
+
 # --- Page Config ---
 st.set_page_config(page_title="AI Startup Incubator", page_icon="🚀", layout="wide")
 
@@ -21,7 +32,8 @@ class AgentState(TypedDict):
     next_agent: str
 
 # --- LLM ---
-llm = ChatOpenAI(model="gpt-4o", temperature=0.2)
+OPENAI_API_KEY = get_secret("OPENAI_API_KEY")
+llm = ChatOpenAI(model="gpt-4o", temperature=0.2, api_key=OPENAI_API_KEY)
 
 # --- Worker Nodes ---
 def researcher_agent(state: AgentState):
@@ -65,8 +77,8 @@ workflow.add_conditional_edges(
 workflow.add_edge("researcher", "ceo")
 workflow.add_edge("designer", "ceo")
 
-MONGODB_URI = os.getenv("MONGODB_URI", "mongodb://localhost:27017")
-DB_NAME = os.getenv("MONGODB_DB_NAME", "multi_agent_orchestration")
+MONGODB_URI = get_secret("MONGODB_URI", "mongodb://localhost:27017")
+DB_NAME = get_secret("MONGODB_DB_NAME", "multi_agent_orchestration")
 
 # --- Streamlit UI ---
 st.title("🚀 AI Startup Incubator")
