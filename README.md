@@ -107,7 +107,5 @@ The app will be available at `http://localhost:8501`.
 ├── .env                # Environment variables (not tracked)
 └── .gitignore
 ```
-
-## License
-
-MIT
+## 📊 Author
+**Amit Rastogi** 
